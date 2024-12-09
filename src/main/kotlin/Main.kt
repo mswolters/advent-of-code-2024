@@ -12,55 +12,48 @@ fun main(args: Array<String>) {
         Day21, Day22, Day23, Day24, Day25,
     )
 
-    days.reversed().forEach { testAndRunOnSuccess(it) }
+    days.reversed().forEach { execute(it) }
 }
 
-fun testAndRunOnSuccess(day: Day) {
-    if (test(day)) {
-        run(day)
-    }
-}
-
-fun test(day: Day): Boolean {
+fun execute(day: Day): Boolean {
     val testData = day.testData()
     when (val result1 = day.part1(testData.data)) {
         NotImplemented -> {}
         is Success -> if (testData.expected1 != result1.result) {
             println("${day.name}: 1: Expected: ${testData.expected1}, result: ${result1.result}")
             return false
+        } else {
+            val input = day.input()
+            val result: Result
+            val timeTaken = measureTime {
+                result = day.part1(input)
+            }
+            if (result is Success) {
+                println("${day.name} Part 1: ${result.result}")
+                if (PRINT_TIME) {
+                    println("Solving took $timeTaken")
+                }
+            }
         }
-
     }
     when (val result2 = day.part2(testData.data2)) {
         NotImplemented -> {}
         is Success -> if (testData.expected2 != result2.result) {
             println("${day.name}: 2: Expected: ${testData.expected2}, result: ${result2.result}")
             return false
+        } else {
+            val input = day.input()
+            val result: Result
+            val timeTaken = measureTime {
+                result = day.part2(input)
+            }
+            if (result is Success) {
+                println("${day.name} Part 2: ${result.result}")
+                if (PRINT_TIME) {
+                    println("Solving took $timeTaken")
+                }
+            }
         }
     }
     return true
-}
-
-fun run(day: Day) {
-    val input = day.input()
-    val part1Result: Result
-    val timeTaken1 = measureTime {
-        part1Result = day.part1(input)
-    }
-    if (part1Result is Success) {
-        println("${day.name} Part 1: ${part1Result.result}")
-        if (PRINT_TIME) {
-            println("Solving took $timeTaken1")
-        }
-    }
-    val part2Result: Result
-    val timeTaken2 = measureTime {
-        part2Result = day.part2(input)
-    }
-    if (part2Result is Success) {
-        println("${day.name} Part 2: ${part2Result.result}")
-        if (PRINT_TIME) {
-            println("Solving took $timeTaken2")
-        }
-    }
 }
