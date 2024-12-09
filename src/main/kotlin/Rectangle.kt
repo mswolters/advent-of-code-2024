@@ -22,7 +22,8 @@ fun <T> Rectangle(width: Int, height: Int, init: (x: Int, y: Int) -> T): Rectang
     return RectangleImpl(width, height, init)
 }
 
-private class RectangleImpl<T>(override val width: Int, override val height: Int, init: (Int, Int) -> T) : Rectangle<T> {
+private class RectangleImpl<T>(override val width: Int, override val height: Int, init: (Int, Int) -> T) :
+    Rectangle<T> {
 
     private val content = List(width * height) { index -> init(index % width, index / width) }
 
@@ -301,6 +302,10 @@ fun Rectangle<*>.edges(): Map<Rectangle.Coordinate, Side> {
     return ret
 }
 
+fun Rectangle<*>.isEdge(coordinate: Rectangle.Coordinate): Boolean {
+    return coordinate.x == 0 || coordinate.x == width - 1 || coordinate.y == 0 || coordinate.y == height - 1
+}
+
 enum class Side {
     North, East, South, West;
 
@@ -319,6 +324,20 @@ enum class Side {
             East, West -> setOf(North, South)
         }
     }
+
+    companion object {
+        val NorthWest = setOf(North, West)
+        val NorthEast = setOf(North, East)
+        val SouthEast = setOf(South, East)
+        val SouthWest = setOf(South, West)
+        val corners = setOf(
+            NorthWest,
+            NorthEast,
+            SouthEast,
+            SouthWest,
+        )
+        val eightSides = corners + entries.map { setOf(it) }
+    }
 }
 
 fun Rectangle<*>.topLeftCoordinate() = Rectangle.Coordinate(0, 0)
@@ -335,8 +354,17 @@ fun Side.coordinateNextTo(x: Int, y: Int): Rectangle.Coordinate {
     }
 }
 
+fun Iterable<Side>.coordinateFrom(x: Int, y: Int): Rectangle.Coordinate {
+    var current = Rectangle.Coordinate(x, y)
+    this.forEach { current = it.coordinateNextTo(current) }
+    return current
+}
+
 fun Side.coordinateNextTo(coordinate: Rectangle.Coordinate): Rectangle.Coordinate =
     coordinateNextTo(coordinate.x, coordinate.y)
+
+fun Iterable<Side>.coordinateFrom(coordinate: Rectangle.Coordinate): Rectangle.Coordinate =
+    coordinateFrom(coordinate.x, coordinate.y)
 
 fun <T> Rectangle<T>.toMutableRectangle(): MutableRectangle<T> {
     return MutableRectangleImpl(width, height) { x, y -> get(x, y) }
@@ -362,6 +390,13 @@ fun <T> Rectangle<T>.neighbours(x: Int, y: Int): Map<Side, Pair<T, Rectangle.Coo
 fun <T> Rectangle<T>.neighbours(coordinate: Rectangle.Coordinate): Map<Side, Pair<T, Rectangle.Coordinate>> =
     neighbours(coordinate.x, coordinate.y)
 
+fun <T> Rectangle<T>.neighbours(
+    coordinate: Rectangle.Coordinate,
+    includeCorners: Boolean
+): Map<Set<Side>, Pair<T, Rectangle.Coordinate>> {
+    return coordinate.neighbours(includeCorners).filterValues { isInBounds(it) }.mapValues { (_, v) -> this[v] to v }
+}
+
 fun Rectangle.Coordinate.direction(to: Rectangle.Coordinate): Side {
     return if (to.x < x) {
         Side.West
@@ -381,6 +416,11 @@ fun Rectangle.Coordinate.neighbours(): Map<Side, Rectangle.Coordinate> {
     result[Side.South] = Rectangle.Coordinate(x, y + 1)
     result[Side.West] = Rectangle.Coordinate(x - 1, y)
     return result
+}
+
+fun Rectangle.Coordinate.neighbours(includeCorners: Boolean): Map<Set<Side>, Rectangle.Coordinate> {
+    val sides = if (includeCorners) Side.eightSides else Side.entries.map { setOf(it) }
+    return sides.associateWith { it.coordinateFrom(this) }
 }
 
 fun Rectangle.Coordinate.neighbour(inDirection: Side): Rectangle.Coordinate {
