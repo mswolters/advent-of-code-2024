@@ -51,3 +51,11 @@ fun <T> List<T>.repeat(times: Int): List<T> {
     }
     return result
 }
+
+fun Int.readBit(index: Int): Boolean {
+    return (this.shr(index) and 1) == 1
+}
+
+fun Long.readBit(index: Int): Boolean {
+    return (this.shr(index) and 1L) == 1L
+}
