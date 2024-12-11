@@ -1,6 +1,7 @@
 import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
+import kotlin.math.log10
 
 /**
  * Reads lines from the given input txt file.
@@ -35,6 +36,7 @@ fun <T> Iterable<T>.byNth(n: Int): List<List<T>> {
 }
 
 fun Int.pow(exponent: Int): Int = toBigInteger().pow(exponent).toInt()
+fun Long.pow(exponent: Int): Long = toBigInteger().pow(exponent).toLong()
 
 fun <A, B> Iterable<A>.cartesianProduct(other: Iterable<B>): Sequence<Pair<A, B>> = sequence {
     forEach { a ->
@@ -58,4 +60,16 @@ fun Int.readBit(index: Int): Boolean {
 
 fun Long.readBit(index: Int): Boolean {
     return (this.shr(index) and 1L) == 1L
+}
+
+fun Int.base10Length(): Int {
+    if (this == 0) return 1
+    if (this < 0) return 1 + (this * -1).base10Length()
+    return (log10(toDouble()) + 1).toInt()
+}
+
+fun Long.base10Length(): Int {
+    if (this == 0L) return 1
+    if (this < 0L) return 1 + (this * -1).base10Length()
+    return (log10(toDouble()) + 1).toInt()
 }
