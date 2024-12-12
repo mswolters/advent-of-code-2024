@@ -52,12 +52,8 @@ object Day08 : Day {
             .flatMap { (a, b) ->
                 sequence {
                     for (i in map.indices) {
-                        val positiveNode = Rectangle.Coordinate(a.x + (a.x - b.x) * i, a.y + (a.y - b.y) * i)
-                        if (map.isInBounds(positiveNode)) yield(positiveNode) else break
-                    }
-                    for (i in map.indices) {
-                        val negativeNode = Rectangle.Coordinate(b.x + (b.x - a.x) * i, b.y + (b.y - a.y) * i)
-                        if (map.isInBounds(negativeNode)) yield(negativeNode) else break
+                        val node = Rectangle.Coordinate(a.x + (a.x - b.x) * i, a.y + (a.y - b.y) * i)
+                        if (map.isInBounds(node)) yield(node) else break
                     }
                 }
             }
