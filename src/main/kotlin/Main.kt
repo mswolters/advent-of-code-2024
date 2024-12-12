@@ -1,7 +1,8 @@
 import day.*
+import day.Day.TestData
+import kotlin.collections.map
+import kotlin.time.Duration
 import kotlin.time.measureTime
-
-const val PRINT_TIME = true
 
 fun main(args: Array<String>) {
     val days = listOf(
@@ -15,45 +16,64 @@ fun main(args: Array<String>) {
     days.reversed().forEach { execute(it) }
 }
 
-fun execute(day: Day): Boolean {
+fun execute(day: Day) {
     val testData = day.testData()
-    when (val result1 = day.part1(testData.data)) {
-        NotImplemented -> {}
-        is Success -> if (testData.expected1 != result1.result) {
-            println("${day.name}: 1: Expected: ${testData.expected1}, result: ${result1.result}")
-            return false
-        } else {
-            val input = day.input()
-            val result: Result
-            val timeTaken = measureTime {
-                result = day.part1(input)
-            }
-            if (result is Success) {
-                println("${day.name} Part 1: ${result.result}")
-                if (PRINT_TIME) {
-                    println("Solving took $timeTaken")
-                }
+    val part1TestsSuccess = checkAndPrintTestResults(day, testData.part1Tests.map { it to day::part1.timedRun(it.input) })
+    if (part1TestsSuccess) {
+        val result = day::part1.timedRun(day.input())
+        when (result.result) {
+            is Crash -> throw result.result.exception
+            NotImplemented -> throw IllegalStateException("Runs should never be NotImplemented if tests succeed")
+            is Success -> {
+                println("${day.name} Part 1: ${result.result.result}")
+                println("Solving took ${result.timeTaken}")
             }
         }
     }
-    when (val result2 = day.part2(testData.data2)) {
-        NotImplemented -> {}
-        is Success -> if (testData.expected2 != result2.result) {
-            println("${day.name}: 2: Expected: ${testData.expected2}, result: ${result2.result}")
-            return false
-        } else {
-            val input = day.input()
-            val result: Result
-            val timeTaken = measureTime {
-                result = day.part2(input)
-            }
-            if (result is Success) {
-                println("${day.name} Part 2: ${result.result}")
-                if (PRINT_TIME) {
-                    println("Solving took $timeTaken")
-                }
+    val part2TestsSuccess = checkAndPrintTestResults(day, testData.part2Tests.map { it to day::part2.timedRun(it.input) })
+    if (part2TestsSuccess) {
+        val result = day::part2.timedRun(day.input())
+        when (result.result) {
+            is Crash -> throw result.result.exception
+            NotImplemented -> throw IllegalStateException("Runs should never be NotImplemented if tests succeed")
+            is Success -> {
+                println("${day.name} Part 2: ${result.result.result}")
+                println("Solving took ${result.timeTaken}")
             }
         }
     }
-    return true
+}
+
+data class RunResult(val result: Result, val timeTaken: Duration)
+
+fun ((List<String>) -> Result).timedRun(input: List<String>): RunResult {
+    val result: Result
+    val timeTaken = measureTime {
+        result = try {
+            this(input)
+        } catch (e: Exception) {
+            Crash(e)
+        }
+    }
+    return RunResult(result, timeTaken)
+}
+
+fun checkAndPrintTestResults(day: Day, results: List<Pair<TestData.Test, RunResult>>): Boolean {
+    return results.map { (test, result) ->
+        when (result.result) {
+            is Crash -> {
+                println("${day.name} ${test.name} crashed with exception ${result.result.exception} after ${result.timeTaken}")
+                false
+            }
+
+            NotImplemented -> false
+            is Success -> if (result.result.result == test.expectedOutput.toString()) {
+                //println("${day.name} ${test.name} successful after ${result.timeTaken}")
+                true
+            } else {
+                println("${day.name} ${test.name} failed. Expected ${test.expectedOutput}, got ${result.result.result}")
+                false
+            }
+        }
+    }.all { it }
 }

@@ -14,9 +14,10 @@ interface Day {
         return readInput(name)
     }
 
-    data class TestData(val expected1: String, val expected2: String, val data: List<String>, val data2: List<String> = data) {
+    data class TestData(val part1Tests: List<Test>, val part2Tests: List<Test>) {
+        data class Test(val name: String, val expectedOutput: Any, val input: List<String>)
+        constructor(expected1: String, expected2: String, data: List<String>, data2: List<String> = data) : this(listOf(Test("Test1", expected1, data)), listOf(Test("Test1", expected2, data2)))
         constructor(expected1: Any, expected2: Any, data: List<String>, data2: List<String> = data) : this(expected1.toString(), expected2.toString(), data, data2)
-
     }
 
 }
@@ -29,3 +30,5 @@ fun <T> T.asSuccess() = Success("$this")
 fun String.asSuccess() = Success(this)
 
 data object NotImplemented : Result
+@JvmInline
+value class Crash(val exception: Exception) : Result

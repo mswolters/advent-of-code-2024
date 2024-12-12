@@ -77,7 +77,11 @@ object Day12 : Day {
 
         val regions = findRegions(map)
         val circumferencePerRegion = mutableMapOf<Set<Rectangle.Coordinate>, Int>()
-        fun increaseCircumferenceIfChangedInDirection(spot: Pair<Rectangle.Coordinate, Char>?, direction: Side, isNew: Boolean) {
+        fun increaseCircumferenceIfChangedInDirection(
+            spot: Pair<Rectangle.Coordinate, Char>?,
+            direction: Side,
+            isNew: Boolean
+        ) {
             if (spot != null) {
                 val (coord, char) = spot
                 val previousSide = when (direction) {
@@ -87,9 +91,11 @@ object Day12 : Day {
                     Side.West -> TODO()
                 }
                 // previousValue looks at the neighbour in the previous ray
-                val previousValue = if (map.isInBounds(coord.neighbour(previousSide))) map[coord.neighbour(previousSide)] else null
+                val previousValue =
+                    if (map.isInBounds(coord.neighbour(previousSide))) map[coord.neighbour(previousSide)] else null
                 // previousNextValue looks at the previous ray, taking either a step back or forward depending on which inside corner we should detect
-                val previousNextCoord = coord.neighbour(previousSide).neighbour(if (isNew) direction.opposite() else direction)
+                val previousNextCoord =
+                    coord.neighbour(previousSide).neighbour(if (isNew) direction.opposite() else direction)
                 val previousNextValue = if (map.isInBounds(previousNextCoord)) map[previousNextCoord] else null
 
                 // Increase the fence count if we detect an inside corner or a wall
@@ -109,25 +115,70 @@ object Day12 : Day {
 
     override fun testData(): Day.TestData {
         return Day.TestData(
-            1930,
-            368,
-            """RRRRIICCFF
-RRRRIICCCF
-VVRRRCCFFF
-VVRCCCJFFF
-VVVVCJJCFE
-VVIVCCJJEE
-VVIIICJJEE
-MIIIIIJJEE
-MIIISIJEEE
-MMMISSJEEE"""
-                .lines(),
-            """AAAAAA
-AAABBA
-AAABBA
-ABBAAA
-ABBAAA
-AAAAAA""".lines()
+            listOf(
+                Day.TestData.Test(
+                    "Tiny start", 140,
+                    """
+                        AAAA
+                        BBCD
+                        BBCC
+                        EEEC
+                        """.trimIndent().lines()
+                ),
+                Day.TestData.Test(
+                    "Bigger test", 1930,
+                    """
+                        RRRRIICCFF
+                        RRRRIICCCF
+                        VVRRRCCFFF
+                        VVRCCCJFFF
+                        VVVVCJJCFE
+                        VVIVCCJJEE
+                        VVIIICJJEE
+                        MIIIIIJJEE
+                        MIIISIJEEE
+                        MMMISSJEEE
+                        """.trimIndent().lines()
+                )
+            ),
+            listOf(
+                Day.TestData.Test(
+                    "E", 236,
+                    """
+                        EEEEE
+                        EXXXX
+                        EEEEE
+                        EXXXX
+                        EEEEE
+                        """.trimIndent().lines()
+                ),
+                Day.TestData.Test(
+                    "Squares", 368,
+                    """
+                        AAAAAA
+                        AAABBA
+                        AAABBA
+                        ABBAAA
+                        ABBAAA
+                        AAAAAA
+                        """.trimIndent().lines()
+                ),
+                Day.TestData.Test(
+                    "Bigger test", 1206,
+                    """
+                        RRRRIICCFF
+                        RRRRIICCCF
+                        VVRRRCCFFF
+                        VVRCCCJFFF
+                        VVVVCJJCFE
+                        VVIVCCJJEE
+                        VVIIICJJEE
+                        MIIIIIJJEE
+                        MIIISIJEEE
+                        MMMISSJEEE
+                        """.trimIndent().lines()
+                )
+            )
         )
     }
 }
