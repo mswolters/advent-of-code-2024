@@ -1,6 +1,5 @@
 package day
 
-import Rectangle
 import cartesianProduct
 import split
 
@@ -39,14 +38,41 @@ object Day13 : Day {
 
     data class Coordinate(val x: Long, val y: Long)
 
+    fun minTokensToSolveSmart(machine: Machine): Long {
+        // Using https://www2.math.uconn.edu/~stein/math1070/Slides/math1070-130notes.pdf
+        // prizeX = n * A.x + m * B.x
+        // prizeY = n * A.y + m * B.y
+
+        // aPresses * A.x + bPresses * B.x = prizeX
+        // aPresses * A.y + bPresses * B.y = prizeY
+
+        // bPresses = (prizeX * A.y - prizeY * A.x) / (B.x * A.y - A.x * B.y)
+        // aPresses * A.y = prizeY - bPresses * B.y
+        // aPresses = (prizeY - bPresses * B.y) / A.Y
+        with(machine) {
+            // use big decimals to eliminate all possible rounding errors
+            val bPresses =
+                ((prize.x.toBigDecimal() * buttonA.y.toBigDecimal() - prize.y.toBigDecimal() * buttonA.x.toBigDecimal()) /
+                        (buttonB.x.toBigDecimal() * buttonA.y.toBigDecimal() - buttonA.x.toBigDecimal() * buttonB.y.toBigDecimal())).toLong()
+            val aPresses =
+                ((prize.y.toBigDecimal() - bPresses.toBigDecimal() * buttonB.y.toBigDecimal()) /
+                    buttonA.y.toBigDecimal()).toLong()
+
+            return if (buttonA * aPresses + buttonB * bPresses == prize) 3 * aPresses + bPresses else 0
+        }
+    }
+
     override fun part2(input: List<String>): Result {
-        return NotImplemented
+        val offset = Coordinate(10000000000000L, 10000000000000L)
+        val machines = input.split("").map(::parseMachine).map { it.copy(prize = it.prize + offset) }
+
+        return machines.sumOf(::minTokensToSolveSmart).asSuccess()
     }
 
     override fun testData(): Day.TestData {
         return Day.TestData(
             480,
-            0,
+            875318608908L,
             """
                 Button A: X+94, Y+34
                 Button B: X+22, Y+67
