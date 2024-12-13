@@ -4,6 +4,8 @@ import kotlin.collections.map
 import kotlin.time.Duration
 import kotlin.time.measureTime
 
+const val ContinueAfterTestThrows = false
+
 fun main(args: Array<String>) {
     val days = listOf(
         Day01, Day02, Day03, Day04, Day05,
@@ -63,6 +65,8 @@ fun checkAndPrintTestResults(day: Day, results: List<Pair<TestData.Test, RunResu
         when (result.result) {
             is Crash -> {
                 println("${day.name} ${test.name} crashed with exception ${result.result.exception} after ${result.timeTaken}")
+                @Suppress("KotlinConstantConditions")
+                if (!ContinueAfterTestThrows) throw result.result.exception
                 false
             }
 
