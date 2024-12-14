@@ -54,11 +54,11 @@ object Day14 : Day {
         val max = Coordinate(robots.maxOf { it.position.x }, robots.maxOf { it.position.y })
 
         var wtf = robots
-        for (steps in 0..10000) {
+        for (steps in 1..10000) {
             wtf = wtf.map { it.copy(position = step(it, 1L, max)) }
             if (wtf.map { it.position }.containsBlockOf3x3(max)) {
-                println(steps + 1)
                 debugPrint(wtf.map { it.position }, max, false)
+                return steps.asSuccess()
             }
         }
         return 0.asSuccess()
