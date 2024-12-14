@@ -8,7 +8,7 @@ object Day14 : Day {
         val endPositions = robots.map { step(it, 100L, max) }
         //debugPrint(endPositions, max)
         return endPositions
-            .filter { it.x != max.x / 2 && it.y != max.y / 2}
+            .filter { it.x != max.x / 2 && it.y != max.y / 2 }
             .groupBy { Pair((it.x - 1) / (max.x / 2), (it.y - 1) / (max.y / 2)) }
             .map { it.value.count() }
             .reduce { a, b -> a * b }
@@ -29,11 +29,14 @@ object Day14 : Day {
         return Coordinate(position.x.mod(max.x + 1), position.y.mod(max.y + 1))
     }
 
-    fun debugPrint(endPositions: List<Coordinate>, max: Coordinate) {
+    fun debugPrint(endPositions: List<Coordinate>, max: Coordinate, blankMiddle: Boolean = true) {
         val counts = endPositions.groupBy { it }.mapValues { (_, v) -> v.size }
         for (y in 0..max.y) {
             for (x in 0..max.x) {
-                print(counts[Coordinate(x, y)]?.toInt() ?: if (x == max.x / 2 || y == max.y / 2) " " else ".")
+                print(
+                    counts[Coordinate(x, y)]?.toInt()
+                        ?: if (blankMiddle && (x == max.x / 2 || y == max.y / 2)) " " else "."
+                )
             }
             println()
         }
@@ -47,6 +50,33 @@ object Day14 : Day {
 
     override fun part2(input: List<String>): Result {
         return NotImplemented
+        val robots = input.map(::parse)
+        val max = Coordinate(robots.maxOf { it.position.x }, robots.maxOf { it.position.y })
+
+        var wtf = robots
+        for (steps in 0..10000) {
+            wtf = wtf.map { it.copy(position = step(it, 1L, max)) }
+            if (wtf.map { it.position }.containsBlockOf3x3(max)) {
+                println(steps + 1)
+                debugPrint(wtf.map { it.position }, max, false)
+            }
+        }
+        return 0.asSuccess()
+    }
+
+    fun Collection<Coordinate>.containsBlockOf3x3(max: Coordinate): Boolean {
+        for (y in 1..<max.y) {
+            for (x in 1..<max.x) {
+                if (this.containsAll(sequence {
+                        for (dx in -1..1) {
+                            for (dy in -1..1) {
+                                yield(Coordinate(x + dx, y + dy))
+                            }
+                        }
+                    }.toSet())) return true
+            }
+        }
+        return false
     }
 
     override fun testData(): Day.TestData {
