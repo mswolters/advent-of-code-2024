@@ -52,36 +52,21 @@ object Day14 : Day {
         val robots = input.map(::parse)
         val max = Coordinate(robots.maxOf { it.position.x }, robots.maxOf { it.position.y })
 
-        var wtf = robots
-        for (steps in 1..10000) {
-            wtf = wtf.map { it.copy(position = step(it, 1L, max)) }
-            if (wtf.map { it.position }.containsBlockOf3x3(max)) {
-                debugPrint(wtf.map { it.position }, max, false)
-                return steps.asSuccess()
-            }
+        //suurely the robot danger level is lowest when they're forming a tree right
+        return (0..10000L).map { i -> i to robots.map { step(it, i, max) } }.minByOrNull { (_, positions) ->
+            positions.filter { it.x != max.x / 2 && it.y != max.y / 2 }
+                .groupBy { Pair((it.x - 1) / (max.x / 2), (it.y - 1) / (max.y / 2)) }
+                .map { it.value.count() }
+                .reduce { a, b -> a * b }
         }
-        return 0.asSuccess()
-    }
-
-    fun Collection<Coordinate>.containsBlockOf3x3(max: Coordinate): Boolean {
-        for (y in 1..<max.y) {
-            for (x in 1..<max.x) {
-                if (this.containsAll(sequence {
-                        for (dx in -1..1) {
-                            for (dy in -1..1) {
-                                yield(Coordinate(x + dx, y + dy))
-                            }
-                        }
-                    }.toSet())) return true
-            }
-        }
-        return false
+            ?.first
+            .asSuccess()
     }
 
     override fun testData(): Day.TestData {
         return Day.TestData(
             12,
-            0,
+            7,
             """p=0,4 v=3,-3
 p=6,3 v=-1,-3
 p=10,3 v=-1,2
