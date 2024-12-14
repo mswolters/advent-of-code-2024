@@ -49,7 +49,6 @@ object Day14 : Day {
     data class Robot(val position: Coordinate, val velocity: Coordinate)
 
     override fun part2(input: List<String>): Result {
-        return NotImplemented
         val robots = input.map(::parse)
         val max = Coordinate(robots.maxOf { it.position.x }, robots.maxOf { it.position.y })
 
