@@ -74,6 +74,10 @@ private class RectangleImpl<T>(override val width: Int, override val height: Int
         return content.hashCode()
     }
 
+    override fun toString(): String {
+        return toString { it.toString() }
+    }
+
 }
 
 interface MutableRectangle<T> : Rectangle<T>, MutableCollection<T> {
@@ -170,6 +174,10 @@ private class MutableRectangleImpl<T>(override val width: Int, override val heig
 
     override fun hashCode(): Int {
         return content.hashCode()
+    }
+
+    override fun toString(): String {
+        return toString { it.toString() }
     }
 
 }
@@ -352,6 +360,10 @@ fun Side.coordinateNextTo(x: Int, y: Int): Rectangle.Coordinate {
         Side.South -> Rectangle.Coordinate(x, y + 1)
         Side.West -> Rectangle.Coordinate(x - 1, y)
     }
+}
+
+fun Side.isVertical(): Boolean {
+    return this == Side.North || this == Side.South
 }
 
 fun Iterable<Side>.coordinateFrom(x: Int, y: Int): Rectangle.Coordinate {
