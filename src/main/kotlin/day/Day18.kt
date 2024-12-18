@@ -1,5 +1,6 @@
 package day
 
+import Path
 import asInts
 import findPath
 import neighbours
@@ -29,8 +30,11 @@ object Day18 : Day {
         val corruptedBytes = indexableCorruptedBytes.toSet()
         val end = Rectangle.Coordinate(corruptedBytes.maxOf { it.x }, corruptedBytes.maxOf { it.y })
 
+        var previousPath: Path<Rectangle.Coordinate>? = null
         val firstFailingIndex = corruptedBytes.indices.first { i ->
             val actualCorruptedBytes = corruptedBytes.take(i + 1)
+            // if the new corrupted byte is not on the path, the path will not change, so skip calculating the new path
+            if (previousPath != null && actualCorruptedBytes.last() !in previousPath.nodes) return@first false
             val path = findPath(
                 start = Rectangle.Coordinate(0, 0),
                 isEnd = { it == end },
@@ -40,6 +44,7 @@ object Day18 : Day {
                         .filter { it !in actualCorruptedBytes }
                         .map { it to 1.0 }
                 })
+            previousPath = path
             path == null
         }
 
