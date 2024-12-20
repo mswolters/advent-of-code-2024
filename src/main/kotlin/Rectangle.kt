@@ -1,3 +1,4 @@
+import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 
@@ -442,4 +443,8 @@ fun Rectangle.Coordinate.neighbour(inDirection: Side): Rectangle.Coordinate {
         Side.South -> Rectangle.Coordinate(x, y + 1)
         Side.West -> Rectangle.Coordinate(x - 1, y)
     }
+}
+
+fun Rectangle.Coordinate.euclideanDistance(other: Rectangle.Coordinate): Int {
+    return (x - other.x).absoluteValue + (y - other.y).absoluteValue
 }
